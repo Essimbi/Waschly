@@ -1,6 +1,7 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DemandStatus } from '../../../../features/client/models/demand.dto';
+import { DemandStatus } from '../../../../core/data/demand.dto';
+import { I18nService } from '../../../i18n/i18n.service';
 
 @Component({
   selector: 'app-status-badge',
@@ -14,15 +15,17 @@ import { DemandStatus } from '../../../../features/client/models/demand.dto';
   `
 })
 export class StatusBadgeComponent {
+  private i18n = inject(I18nService);
+
   status = input.required<DemandStatus>();
 
   label = computed(() => {
     switch (this.status()) {
-      case 'open': return 'Offen';
-      case 'assigned': return 'Zugewiesen';
-      case 'in_progress': return 'In Arbeit';
-      case 'completed': return 'Abgeschlossen';
-      case 'cancelled': return 'Storniert';
+      case 'open': return this.i18n.t('shared.status.open');
+      case 'assigned': return this.i18n.t('shared.status.assigned');
+      case 'in_progress': return this.i18n.t('shared.status.inProgress');
+      case 'completed': return this.i18n.t('shared.status.completed');
+      case 'cancelled': return this.i18n.t('shared.status.cancelled');
       default: return this.status();
     }
   });

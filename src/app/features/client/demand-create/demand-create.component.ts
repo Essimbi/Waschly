@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,8 +10,10 @@ import { TextareaComponent } from '../../../shared/ui/forms/textarea/textarea.co
 import { FileUploaderComponent } from '../../../shared/ui/forms/file-uploader/file-uploader.component';
 import { ToastService } from '../../../shared/ui/feedback/toast/toast.service';
 
-import { DemandService } from '../services/demand.service';
-import { CreateDemandDto } from '../models/demand.dto';
+import { DemandService } from '../../../core/data/demand.service';
+import { CreateDemandDto } from '../../../core/data/demand.dto';
+import { TranslatePipe } from '../../../shared/i18n/translate.pipe';
+import { I18nService } from '../../../shared/i18n/i18n.service';
 
 @Component({
   selector: 'app-demand-create',
@@ -22,17 +24,18 @@ import { CreateDemandDto } from '../models/demand.dto';
     ButtonComponent,
     IconButtonComponent,
     TextareaComponent,
-    FileUploaderComponent
+    FileUploaderComponent,
+    TranslatePipe
   ],
   template: `
     <div class="min-h-screen bg-page flex flex-col pb-safe">
       <!-- Header with Progress -->
       <header class="bg-white px-4 py-4 flex items-center gap-3 sticky top-0 z-20 shadow-sm md:shadow-none border-b border-gray-100">
-        <app-icon-button ariaLabel="Go back" variant="ghost" (click)="goBack()">
+        <app-icon-button [ariaLabel]="'client.demandCreate.goBackAria' | translate" variant="ghost" (click)="goBack()">
           <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </app-icon-button>
         <div class="flex-1">
-          <h1 class="font-bold text-xl text-gray-900">Neue Wäsche</h1>
+          <h1 class="font-bold text-xl text-gray-900">{{ 'client.demandCreate.title' | translate }}</h1>
           <!-- Progress bar (Mobile only) -->
           <div class="w-full bg-gray-100 h-1.5 rounded-full mt-2 md:hidden overflow-hidden">
             <div class="bg-accent-500 h-1.5 rounded-full transition-all duration-500 ease-out" [style.width]="(currentStep() / 4) * 100 + '%'"></div>
@@ -48,14 +51,14 @@ import { CreateDemandDto } from '../models/demand.dto';
             <div class="md:bg-white md:p-8 md:rounded-3xl md:shadow-sm md:border md:border-gray-100">
               <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <span class="flex items-center justify-center w-8 h-8 rounded-full bg-accent-100 text-accent-700 text-sm font-bold md:hidden">1</span>
-                Fahrzeug & Wäsche
+                {{ 'client.demandCreate.step1Title' | translate }}
               </h2>
-              
+
               <!-- Vehicle Type -->
               <div class="mb-8">
-                <label class="block text-sm font-semibold text-gray-700 mb-3">Fahrzeugtyp</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-3">{{ 'client.demandCreate.vehicleTypeLabel' | translate }}</label>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  @for (opt of vehicleOptions; track opt.value) {
+                  @for (opt of vehicleOptions(); track opt.value) {
                     <div 
                       (click)="updateControl('vehicleType', opt.value)"
                       class="cursor-pointer border-2 rounded-2xl p-4 text-center transition-all duration-200"
@@ -69,15 +72,15 @@ import { CreateDemandDto } from '../models/demand.dto';
               
               <!-- Wash Type -->
               <div class="mb-8">
-                <label class="block text-sm font-semibold text-gray-700 mb-3">Art der Wäsche</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-3">{{ 'client.demandCreate.washTypeLabel' | translate }}</label>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  @for (opt of washOptions; track opt.value) {
-                    <div 
+                  @for (opt of washOptions(); track opt.value) {
+                    <div
                       (click)="updateControl('washType', opt.value)"
                       class="cursor-pointer border-2 rounded-2xl p-4 transition-all duration-200"
                       [ngClass]="form.get('washType')?.value === opt.value ? 'border-accent-500 bg-accent-50 text-accent-800 shadow-sm' : 'border-gray-100 bg-white hover:border-gray-200 text-gray-600'">
                       <div class="font-bold mb-1">{{ opt.label }}</div>
-                      <div class="text-xs opacity-75">Perfekt für den {{ opt.label.toLowerCase() }}en Bereich.</div>
+                      <div class="text-xs opacity-75">{{ washTypeDescription(opt.value) }}</div>
                     </div>
                   }
                 </div>
@@ -85,9 +88,9 @@ import { CreateDemandDto } from '../models/demand.dto';
 
               <!-- Dirt Level -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-3">Verschmutzungsgrad</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-3">{{ 'client.demandCreate.dirtLevelLabel' | translate }}</label>
                 <div class="flex bg-gray-100 p-1 rounded-2xl">
-                  @for (opt of dirtOptions; track opt.value) {
+                  @for (opt of dirtOptions(); track opt.value) {
                     <button 
                       type="button"
                       (click)="updateControl('dirtLevel', opt.value)"
@@ -107,12 +110,12 @@ import { CreateDemandDto } from '../models/demand.dto';
             <div class="md:bg-white md:p-8 md:rounded-3xl md:shadow-sm md:border md:border-gray-100">
               <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <span class="flex items-center justify-center w-8 h-8 rounded-full bg-accent-100 text-accent-700 text-sm font-bold md:hidden">2</span>
-                Standort
+                {{ 'client.demandCreate.step2Title' | translate }}
               </h2>
-              
+
               <div class="bg-accent-50 border border-accent-100 p-4 rounded-2xl mb-6 flex gap-3 text-accent-700">
                 <svg class="w-6 h-6 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <p class="text-sm leading-relaxed">Für diesen Prototypen nutzen wir einen fiktiven Standort in Berlin. In der echten App würde hier eine interaktive Karte erscheinen.</p>
+                <p class="text-sm leading-relaxed">{{ 'client.demandCreate.locationInfo' | translate }}</p>
               </div>
               
               <!-- Abstract Map Placeholder -->
@@ -126,7 +129,7 @@ import { CreateDemandDto } from '../models/demand.dto';
                 </div>
               </div>
               
-              <app-button type="button" variant="secondary" class="w-full" (click)="setLocation()">Standort verwenden</app-button>
+              <app-button type="button" variant="secondary" class="w-full" (click)="setLocation()">{{ 'client.demandCreate.useLocationButton' | translate }}</app-button>
             </div>
           </div>
 
@@ -135,19 +138,19 @@ import { CreateDemandDto } from '../models/demand.dto';
             <div class="md:bg-white md:p-8 md:rounded-3xl md:shadow-sm md:border md:border-gray-100">
               <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <span class="flex items-center justify-center w-8 h-8 rounded-full bg-accent-100 text-accent-700 text-sm font-bold md:hidden">3</span>
-                Details & Fotos
+                {{ 'client.demandCreate.step3Title' | translate }}
               </h2>
-              
+
               <div class="mb-8">
-                <app-file-uploader 
-                  label="Fahrzeug Fotos (Optional)" 
+                <app-file-uploader
+                  [label]="'client.demandCreate.photosLabel' | translate"
                   (fileSelected)="onFileSelected($event)">
                 </app-file-uploader>
               </div>
-              
-              <app-textarea 
-                label="Notizen für den Wäscher" 
-                helperText="Z.B. Zugangscode für das Parkhaus"
+
+              <app-textarea
+                [label]="'client.demandCreate.notesLabel' | translate"
+                [helperText]="'client.demandCreate.notesHelper' | translate"
                 [value]="form.get('notes')?.value"
                 (valueChange)="updateControl('notes', $event)">
               </app-textarea>
@@ -158,24 +161,24 @@ import { CreateDemandDto } from '../models/demand.dto';
           <div [ngClass]="currentStep() !== 4 ? 'hidden' : 'block animate-fade-up'" class="space-y-6 fade-in md:hidden">
             <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <span class="flex items-center justify-center w-8 h-8 rounded-full bg-accent-100 text-accent-700 text-sm font-bold md:hidden">4</span>
-              Zusammenfassung
+              {{ 'client.demandCreate.step4Title' | translate }}
             </h2>
-            
+
             <div class="bg-white rounded-3xl p-6 shadow-soft-sm space-y-4 text-sm">
               <div class="flex justify-between items-center border-b border-gray-50 pb-4">
-                <span class="text-gray-500">Fahrzeug</span>
+                <span class="text-gray-500">{{ 'client.demandCreate.summaryVehicle' | translate }}</span>
                 <span class="font-bold text-gray-900 uppercase bg-gray-100 px-3 py-1 rounded-lg">{{ form.value.vehicleType }}</span>
               </div>
               <div class="flex justify-between items-center border-b border-gray-50 pb-4">
-                <span class="text-gray-500">Wäsche</span>
+                <span class="text-gray-500">{{ 'client.demandCreate.summaryWash' | translate }}</span>
                 <span class="font-bold text-gray-900 uppercase bg-gray-100 px-3 py-1 rounded-lg">{{ form.value.washType }}</span>
               </div>
               <div class="flex justify-between items-center border-b border-gray-50 pb-4">
-                <span class="text-gray-500">Standort</span>
+                <span class="text-gray-500">{{ 'client.demandCreate.summaryLocation' | translate }}</span>
                 <span class="font-bold text-gray-900 truncate max-w-[150px] text-right">{{ form.value.location?.address || 'Alexanderplatz' }}</span>
               </div>
               <div class="flex justify-between items-center pt-2">
-                <span class="text-gray-900 font-bold text-lg">Total</span>
+                <span class="text-gray-900 font-bold text-lg">{{ 'client.demandCreate.summaryTotal' | translate }}</span>
                 <span class="font-bold text-accent-600 text-xl">35.00 €</span>
               </div>
             </div>
@@ -190,7 +193,7 @@ import { CreateDemandDto } from '../models/demand.dto';
               class="w-full md:w-auto md:min-w-[240px]"
               [disabled]="form.invalid"
               [isLoading]="createMutation.isPending()">
-              Kostenpflichtig buchen
+              {{ 'client.demandCreate.bookButton' | translate }}
             </app-button>
           </div>
 
@@ -206,27 +209,27 @@ import { CreateDemandDto } from '../models/demand.dto';
           class="flex-1"
           (click)="previousStep()"
           [disabled]="createMutation.isPending()">
-          Zurück
+          {{ 'client.demandCreate.backButton' | translate }}
         </app-button>
-        
-        <app-button 
-          *ngIf="currentStep() < 4" 
+
+        <app-button
+          *ngIf="currentStep() < 4"
           type="button"
-          variant="primary" 
+          variant="primary"
           class="flex-[2]"
           (click)="nextStep()">
-          Weiter
+          {{ 'client.demandCreate.nextButton' | translate }}
         </app-button>
-        
-        <app-button 
-          *ngIf="currentStep() === 4" 
+
+        <app-button
+          *ngIf="currentStep() === 4"
           type="button"
-          variant="primary" 
+          variant="primary"
           class="flex-[2]"
           (click)="onSubmit()"
           [disabled]="form.invalid"
           [isLoading]="createMutation.isPending()">
-          Buchen
+          {{ 'client.demandCreate.confirmButton' | translate }}
         </app-button>
       </footer>
     </div>
@@ -250,6 +253,7 @@ export class DemandCreateComponent {
   private router = inject(Router);
   private demandService = inject(DemandService);
   private toast = inject(ToastService);
+  private i18n = inject(I18nService);
 
   currentStep = signal(1);
 
@@ -269,34 +273,38 @@ export class DemandCreateComponent {
   });
 
   // Options
-  vehicleOptions = [
-    { value: 'compact', label: 'Compact' },
-    { value: 'sedan', label: 'Sedan' },
-    { value: 'suv', label: 'SUV' },
-    { value: 'van', label: 'Van' }
-  ];
+  vehicleOptions = computed(() => [
+    { value: 'compact', label: this.i18n.t('client.demandCreate.vehicleCompact') },
+    { value: 'sedan', label: this.i18n.t('client.demandCreate.vehicleSedan') },
+    { value: 'suv', label: this.i18n.t('client.demandCreate.vehicleSuv') },
+    { value: 'van', label: this.i18n.t('client.demandCreate.vehicleVan') }
+  ]);
 
-  washOptions = [
-    { value: 'exterior', label: 'Exterior Only' },
-    { value: 'interior', label: 'Interior Only' },
-    { value: 'full', label: 'Full Wash' }
-  ];
+  washOptions = computed(() => [
+    { value: 'exterior', label: this.i18n.t('client.demandCreate.washExterior') },
+    { value: 'interior', label: this.i18n.t('client.demandCreate.washInterior') },
+    { value: 'full', label: this.i18n.t('client.demandCreate.washFull') }
+  ]);
 
-  dirtOptions = [
-    { value: 'light', label: 'Light Dirt' },
-    { value: 'medium', label: 'Medium Dirt' },
-    { value: 'heavy', label: 'Heavy Dirt' }
-  ];
+  dirtOptions = computed(() => [
+    { value: 'light', label: this.i18n.t('client.demandCreate.dirtLight') },
+    { value: 'medium', label: this.i18n.t('client.demandCreate.dirtMedium') },
+    { value: 'heavy', label: this.i18n.t('client.demandCreate.dirtHeavy') }
+  ]);
+
+  washTypeDescription(value: string): string {
+    return this.i18n.t(`client.demandCreate.washDesc.${value}`);
+  }
 
   // TanStack Mutation
   createMutation = injectMutation(() => ({
     mutationFn: (dto: CreateDemandDto) => this.demandService.createDemand(dto),
     onSuccess: (data) => {
-      this.toast.show('success', 'Request published successfully!');
-      this.router.navigate(['/client/tracking', data.id]);
+      this.toast.show('success', this.i18n.t('client.demandCreate.toastPublishSuccess'));
+      this.router.navigate(['/client/track', data.id]);
     },
     onError: () => {
-      this.toast.show('error', 'Failed to publish request. Try again.');
+      this.toast.show('error', this.i18n.t('client.demandCreate.toastPublishError'));
     }
   }));
 
@@ -306,17 +314,17 @@ export class DemandCreateComponent {
 
   setLocation() {
     this.form.get('location')?.patchValue({ lat: 52.5200, lng: 13.4050, address: 'Alexanderplatz' });
-    this.toast.show('success', 'Location acquired');
+    this.toast.show('success', this.i18n.t('client.demandCreate.toastLocationAcquired'));
   }
 
   onFileSelected(file: File | null) {
     if (file) {
       // Fake upload
-      this.toast.show('info', 'Uploading photo...');
+      this.toast.show('info', this.i18n.t('client.demandCreate.toastUploadingPhoto'));
       setTimeout(() => {
         const current = this.form.get('photoUrls')?.value || [];
         this.form.get('photoUrls')?.setValue([...current, 'fake-url']);
-        this.toast.show('success', 'Photo attached');
+        this.toast.show('success', this.i18n.t('client.demandCreate.toastPhotoAttached'));
       }, 500);
     }
   }
@@ -344,7 +352,7 @@ export class DemandCreateComponent {
 
   onSubmit() {
     if (this.form.invalid) {
-      this.toast.show('error', 'Please complete all required fields.');
+      this.toast.show('error', this.i18n.t('client.demandCreate.toastIncompleteForm'));
       return;
     }
     this.createMutation.mutate(this.form.value as CreateDemandDto);

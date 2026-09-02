@@ -53,9 +53,11 @@ export class I18nService {
   }
 
   /**
-   * Retrieves a translation by dot notation path, e.g., 'hero.title1'
+   * Retrieves a translation by dot notation path, e.g., 'hero.title1'.
+   * Optional params replace {placeholders} in the resolved string, e.g.
+   * t('auth.login.welcomeBack', { name: 'Julian' }) → "Willkommen zurück, Julian!"
    */
-  public t(path: string): string {
+  public t(path: string, params?: Record<string, string>): string {
     const keys = path.split('.');
     let current: any = this.dict();
 
@@ -67,6 +69,12 @@ export class I18nService {
       current = current[key];
     }
 
-    return current as string;
+    let result = current as string;
+    if (params) {
+      for (const [key, value] of Object.entries(params)) {
+        result = result.replace(`{${key}}`, value);
+      }
+    }
+    return result;
   }
 }

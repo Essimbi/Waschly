@@ -3,8 +3,10 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { BackgroundParticlesComponent } from './background-particles.component';
 import { PublicFooterComponent } from './public-footer.component';
+import { CookieConsentBannerComponent } from './cookie-consent-banner.component';
 import { TranslatePipe } from '../../../shared/i18n/translate.pipe';
 import { I18nService } from '../../../shared/i18n/i18n.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-public-layout',
@@ -16,6 +18,7 @@ import { I18nService } from '../../../shared/i18n/i18n.service';
     RouterLinkActive,
     BackgroundParticlesComponent,
     PublicFooterComponent,
+    CookieConsentBannerComponent,
     TranslatePipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +42,9 @@ import { I18nService } from '../../../shared/i18n/i18n.service';
             <nav class="hidden md:flex items-center space-x-8">
               <a routerLink="/" routerLinkActive="text-primary-600 dark:text-primary-400 font-medium" [routerLinkActiveOptions]="{exact: true}" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">
                 {{ 'nav.home' | translate }}
+              </a>
+              <a routerLink="/offers" routerLinkActive="text-primary-600 dark:text-primary-400 font-medium" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">
+                {{ 'nav.offers' | translate }}
               </a>
               <a routerLink="/pricing" routerLinkActive="text-primary-600 dark:text-primary-400 font-medium" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">
                 {{ 'nav.pricing' | translate }}
@@ -76,8 +82,8 @@ import { I18nService } from '../../../shared/i18n/i18n.service';
                 </svg>
               </button>
               
-              <a routerLink="/login" class="hidden sm:inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-colors duration-200">
-                {{ 'nav.login' | translate }}
+              <a [routerLink]="accountLink()" class="hidden sm:inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-colors duration-200">
+                {{ currentUser() ? accountLabel() : ('nav.login' | translate) }}
               </a>
               
               <!-- Mobile menu button -->
@@ -101,6 +107,8 @@ import { I18nService } from '../../../shared/i18n/i18n.service';
 
       <!-- Footer -->
       <app-public-footer></app-public-footer>
+
+      <app-cookie-consent-banner></app-cookie-consent-banner>
     </div>
   `
 })
@@ -109,9 +117,21 @@ export class PublicLayoutComponent implements OnInit {
   private isBrowser: boolean;
   public currentLang;
 
-  constructor(@Inject(PLATFORM_ID) platformId: Object, private i18n: I18nService) {
+  public currentUser;
+
+  constructor(@Inject(PLATFORM_ID) platformId: Object, private i18n: I18nService, private authService: AuthService) {
     this.isBrowser = isPlatformBrowser(platformId);
     this.currentLang = this.i18n.currentLang;
+    this.currentUser = this.authService.currentUser;
+  }
+
+  accountLink(): string {
+    const role = this.currentUser()?.role;
+    return role === 'washer' ? '/washer' : role === 'admin' ? '/admin' : role === 'client' ? '/client' : '/login';
+  }
+
+  accountLabel(): string {
+    return this.currentUser()?.firstName ?? '';
   }
 
   ngOnInit() {

@@ -2,13 +2,15 @@ import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { injectQuery } from '@tanstack/angular-query-experimental';
-import { DemandService } from '../services/demand.service';
-import { DemandResponseDto } from '../models/demand.dto';
+import { DemandService } from '../../../core/data/demand.service';
+import { DemandResponseDto } from '../../../core/data/demand.dto';
 import { ButtonComponent } from '../../../shared/ui/actions/button/button.component';
 import { CardComponent } from '../../../shared/ui/display/card/card.component';
 import { StatusBadgeComponent } from '../../../shared/ui/display/status-badge/status-badge.component';
 import { SkeletonComponent } from '../../../shared/ui/feedback/skeleton/skeleton.component';
 import { AvatarComponent } from '../../../shared/ui/display/avatar/avatar.component';
+import { TranslatePipe } from '../../../shared/i18n/translate.pipe';
+import { I18nService } from '../../../shared/i18n/i18n.service';
 
 @Component({
   selector: 'app-client-dashboard',
@@ -20,16 +22,17 @@ import { AvatarComponent } from '../../../shared/ui/display/avatar/avatar.compon
     CardComponent,
     StatusBadgeComponent,
     SkeletonComponent,
-    AvatarComponent
+    AvatarComponent,
+    TranslatePipe
   ],
   template: `
     <div class="max-w-4xl mx-auto space-y-10 p-4 pt-6 pb-24">
       <header class="flex items-end justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Hallo, {{ profile()?.firstName || 'Gast' }}! 👋</h1>
-          <p class="text-gray-500 text-sm mt-1">Hier ist der Überblick über Ihre Wäschen.</p>
+          <h1 class="text-2xl font-bold text-gray-900">{{ greeting() }}</h1>
+          <p class="text-gray-500 text-sm mt-1">{{ 'client.dashboard.subtitle' | translate }}</p>
         </div>
-        <app-button variant="primary" routerLink="/client/new" class="hidden sm:block">Neue Wäsche buchen</app-button>
+        <app-button variant="primary" routerLink="/client/new" class="hidden sm:block">{{ 'client.dashboard.newWashButton' | translate }}</app-button>
       </header>
 
       @if (demandsQuery.isPending() || profileQuery.isPending()) {
@@ -41,7 +44,7 @@ import { AvatarComponent } from '../../../shared/ui/display/avatar/avatar.compon
 
         <!-- Active Demands -->
         <section>
-          <h2 class="text-lg font-semibold text-gray-800 mb-4">Aktuelle Wäschen</h2>
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">{{ 'client.dashboard.activeSectionTitle' | translate }}</h2>
           
           @if (activeDemands().length > 0) {
             <div class="grid gap-4">
@@ -57,7 +60,7 @@ import { AvatarComponent } from '../../../shared/ui/display/avatar/avatar.compon
                         <h3 class="font-bold text-gray-900 uppercase">{{ demand.vehicleType }} ({{ demand.washType }})</h3>
                         <p class="text-sm text-gray-500 mt-1 flex items-center gap-1">
                           <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                          {{ demand.location.address || 'Standort' }}
+                          {{ demand.location.address || ('client.dashboard.locationFallback' | translate) }}
                         </p>
                       </div>
                       <div class="text-right">
@@ -69,7 +72,7 @@ import { AvatarComponent } from '../../../shared/ui/display/avatar/avatar.compon
                       <div class="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3">
                         <app-avatar [src]="demand.washer.avatarUrl || ''" [name]="demand.washer.name" size="sm"></app-avatar>
                         <div class="text-sm">
-                          <p class="text-gray-500">Ihr Wäscher</p>
+                          <p class="text-gray-500">{{ 'client.dashboard.yourWasher' | translate }}</p>
                           <p class="font-medium text-gray-900">{{ demand.washer.name }}</p>
                         </div>
                       </div>
@@ -83,9 +86,9 @@ import { AvatarComponent } from '../../../shared/ui/display/avatar/avatar.compon
               <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-soft-sm text-accent-500">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
               </div>
-              <h3 class="text-lg font-bold text-gray-900 mb-2 tracking-tight">Keine aktiven Wäschen</h3>
-              <p class="text-gray-600 mb-6">Buchen Sie jetzt Ihre erste On-Demand-Wäsche und lehnen Sie sich zurück.</p>
-              <app-button variant="primary" routerLink="/client/new">Wäsche buchen</app-button>
+              <h3 class="text-lg font-bold text-gray-900 mb-2 tracking-tight">{{ 'client.dashboard.emptyTitle' | translate }}</h3>
+              <p class="text-gray-600 mb-6">{{ 'client.dashboard.emptyText' | translate }}</p>
+              <app-button variant="primary" routerLink="/client/new">{{ 'client.dashboard.emptyButton' | translate }}</app-button>
             </div>
           }
         </section>
@@ -94,8 +97,8 @@ import { AvatarComponent } from '../../../shared/ui/display/avatar/avatar.compon
         @if (recentHistory().length > 0) {
           <section class="mt-16">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-semibold text-gray-800 tracking-tight">Kürzlich abgeschlossen</h2>
-              <a routerLink="/client/history" class="text-sm font-medium text-accent-600 hover:text-accent-700">Alle ansehen &rarr;</a>
+              <h2 class="text-lg font-semibold text-gray-800 tracking-tight">{{ 'client.dashboard.recentTitle' | translate }}</h2>
+              <a routerLink="/client/history" class="text-sm font-medium text-accent-600 hover:text-accent-700">{{ 'client.dashboard.viewAll' | translate }}</a>
             </div>
             
             <div class="grid gap-3">
@@ -110,7 +113,7 @@ import { AvatarComponent } from '../../../shared/ui/display/avatar/avatar.compon
                       <div class="flex items-center gap-3">
                         <app-status-badge [status]="demand.status"></app-status-badge>
                         <!-- Review Action Required Indicator -->
-                        <span *ngIf="demand.status === 'completed' && !demand.reviewSubmitted" class="text-xs font-semibold text-accent-600 bg-accent-50 px-2 py-1 rounded-lg animate-pulse">Bewertung ausstehend</span>
+                        <span *ngIf="demand.status === 'completed' && !demand.reviewSubmitted" class="text-xs font-semibold text-accent-600 bg-accent-50 px-2 py-1 rounded-lg animate-pulse">{{ 'client.dashboard.reviewPending' | translate }}</span>
                       </div>
                     </div>
                   </app-card>
@@ -126,6 +129,13 @@ import { AvatarComponent } from '../../../shared/ui/display/avatar/avatar.compon
 })
 export class ClientDashboardComponent {
   private demandService = inject(DemandService);
+  private i18n = inject(I18nService);
+
+  greeting = computed(() =>
+    this.i18n.t('client.dashboard.greeting', {
+      name: this.profile()?.firstName || this.i18n.t('client.dashboard.guest')
+    })
+  );
 
   profileQuery = injectQuery(() => ({
     queryKey: ['profile'],

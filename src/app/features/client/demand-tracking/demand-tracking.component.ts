@@ -10,11 +10,12 @@ import { BadgeComponent } from '../../../shared/ui/display/badge/badge.component
 import { ButtonComponent } from '../../../shared/ui/actions/button/button.component';
 import { IconButtonComponent } from '../../../shared/ui/actions/icon-button/icon-button.component';
 import { SkeletonComponent } from '../../../shared/ui/feedback/skeleton/skeleton.component';
-import { ModalComponent } from '../../../shared/ui/layout/modal/modal.component';
 import { ToastService } from '../../../shared/ui/feedback/toast/toast.service';
 
-import { DemandService } from '../services/demand.service';
-import { DemandStatus } from '../models/demand.dto';
+import { DemandService } from '../../../core/data/demand.service';
+import { DemandStatus } from '../../../core/data/demand.dto';
+import { TranslatePipe } from '../../../shared/i18n/translate.pipe';
+import { I18nService } from '../../../shared/i18n/i18n.service';
 
 @Component({
   selector: 'app-demand-tracking',
@@ -28,19 +29,19 @@ import { DemandStatus } from '../models/demand.dto';
     ButtonComponent,
     IconButtonComponent,
     SkeletonComponent,
-    ModalComponent
+    TranslatePipe
   ],
   template: `
     <div class="min-h-screen bg-gray-50 flex flex-col pb-safe">
       <!-- Header -->
       <header class="bg-white border-b px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
-        <app-icon-button ariaLabel="Go back" variant="ghost" (click)="goBack()">
+        <app-icon-button [ariaLabel]="'client.demandTracking.goBackAria' | translate" variant="ghost" (click)="goBack()">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </app-icon-button>
         <div class="flex-1">
-          <h1 class="font-bold text-lg">Request Tracking</h1>
+          <h1 class="font-bold text-lg">{{ 'client.demandTracking.title' | translate }}</h1>
           @if (demand()) {
-            <p class="text-xs text-gray-500 font-mono">ID: {{ demand()!.id }}</p>
+            <p class="text-xs text-gray-500 font-mono">{{ 'client.demandTracking.idLabel' | translate }} {{ demand()!.id }}</p>
           }
         </div>
         @if (demand()) {
@@ -69,9 +70,9 @@ import { DemandStatus } from '../models/demand.dto';
         @else if (demand()) {
           <!-- Status Timeline -->
           <div class="bg-white rounded-xl p-4 shadow-sm border">
-            <h2 class="font-semibold mb-4 text-gray-900">Status</h2>
+            <h2 class="font-semibold mb-4 text-gray-900">{{ 'client.demandTracking.statusHeading' | translate }}</h2>
             <div class="flex items-center gap-0">
-              @for (step of statusSteps; track step.key; let last = $last) {
+              @for (step of statusSteps(); track step.key; let last = $last) {
                 <div class="flex items-center flex-1 last:flex-initial">
                   <div class="flex flex-col items-center">
                     <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors"
@@ -95,18 +96,18 @@ import { DemandStatus } from '../models/demand.dto';
           <!-- Washer Card (if assigned) -->
           @if (demand()!.washer) {
             <div class="bg-white rounded-xl p-4 shadow-sm border">
-              <h2 class="font-semibold mb-4 text-gray-900">Your Washer</h2>
+              <h2 class="font-semibold mb-4 text-gray-900">{{ 'client.demandTracking.washerHeading' | translate }}</h2>
               <div class="flex items-center gap-4">
-                <app-avatar 
-                  [src]="demand()!.washer!.avatarUrl ?? null" 
-                  [name]="demand()!.washer!.name" 
+                <app-avatar
+                  [src]="demand()!.washer!.avatarUrl ?? null"
+                  [name]="demand()!.washer!.name"
                   size="xl">
                 </app-avatar>
                 <div class="flex-1">
                   <div class="flex items-center gap-2 flex-wrap">
                     <p class="font-bold text-gray-900">{{ demand()!.washer!.name }}</p>
                     @if (demand()!.washer!.isVerified) {
-                      <app-badge status="verified">Verified</app-badge>
+                      <app-badge status="verified">{{ 'client.demandTracking.verifiedBadge' | translate }}</app-badge>
                     }
                   </div>
                   <app-rating [readonly]="true" [value]="demand()!.washer!.rating ?? 0" size="sm" class="mt-1"></app-rating>
@@ -116,7 +117,7 @@ import { DemandStatus } from '../models/demand.dto';
               <!-- Messaging link -->
               <app-button variant="secondary" class="w-full mt-4" (click)="goToMessages()">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                Message Washer
+                {{ 'client.demandTracking.messageWasherButton' | translate }}
               </app-button>
             </div>
           }
@@ -130,20 +131,20 @@ import { DemandStatus } from '../models/demand.dto';
                   <div class="w-10 h-10 bg-accent-600 rounded-full mx-auto mb-2 flex items-center justify-center shadow-lg">
                     <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
                   </div>
-                  <p class="text-sm text-gray-600 font-medium">Washer tracking</p>
-                  <p class="text-xs text-gray-400">Map view (Leaflet) goes here</p>
+                  <p class="text-sm text-gray-600 font-medium">{{ 'client.demandTracking.mapTitle' | translate }}</p>
+                  <p class="text-xs text-gray-400">{{ 'client.demandTracking.mapPlaceholder' | translate }}</p>
                 </div>
               </div>
               <div class="px-4 py-3 flex items-center gap-2 text-sm text-gray-600">
                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Washer is on their way</span>
+                <span>{{ 'client.demandTracking.washerOnWay' | translate }}</span>
               </div>
             </div>
           }
 
           <!-- Dev helper: change status for testing -->
           <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm">
-            <p class="font-semibold text-amber-800 mb-2">🔧 Dev Helper (Remove in prod)</p>
+            <p class="font-semibold text-amber-800 mb-2">{{ 'client.demandTracking.devHelperLabel' | translate }}</p>
             <div class="flex flex-wrap gap-2">
               @for (s of ['assigned', 'in_progress', 'completed']; track s) {
                 <button 
@@ -157,29 +158,15 @@ import { DemandStatus } from '../models/demand.dto';
         }
       </main>
 
-      <!-- CTA Footer -->
-      @if (demand()?.status === 'in_progress') {
+      <!-- CTA Footer: the washer marks the wash as completed — the client confirms & rates here -->
+      @if (demand()?.status === 'completed' && !demand()?.reviewSubmitted) {
         <footer class="fixed bottom-0 inset-x-0 bg-white border-t p-4">
-          <app-button variant="primary" class="w-full" (click)="validateModal.set(true)">
-            Mark as Completed
+          <app-button variant="primary" class="w-full" (click)="goToValidation()">
+            {{ 'client.demandTracking.reviewButton' | translate }}
           </app-button>
         </footer>
       }
     </div>
-
-    <!-- Validate Modal -->
-    <app-modal [isOpen]="validateModal()" (closed)="validateModal.set(false)" title="Confirm completion">
-      <p class="text-gray-600">Is the wash complete and you're satisfied with the result?</p>
-      <div footer>
-        <app-button variant="ghost" (click)="validateModal.set(false)">Not yet</app-button>
-        <app-button 
-          variant="primary" 
-          [isLoading]="validateMutation.isPending()"
-          (click)="confirmValidation()">
-          Yes, it's done!
-        </app-button>
-      </div>
-    </app-modal>
   `
 })
 export class DemandTrackingComponent implements OnInit {
@@ -188,16 +175,16 @@ export class DemandTrackingComponent implements OnInit {
   private demandService = inject(DemandService);
   private toast = inject(ToastService);
   private queryClient = inject(QueryClient);
+  private i18n = inject(I18nService);
 
   demandId = signal('');
-  validateModal = signal(false);
 
-  statusSteps = [
-    { key: 'open' as DemandStatus, label: 'Published' },
-    { key: 'assigned' as DemandStatus, label: 'Assigned' },
-    { key: 'in_progress' as DemandStatus, label: 'In Progress' },
-    { key: 'completed' as DemandStatus, label: 'Done' }
-  ];
+  statusSteps = computed(() => [
+    { key: 'open' as DemandStatus, label: this.i18n.t('client.demandTracking.statusPublished') },
+    { key: 'assigned' as DemandStatus, label: this.i18n.t('client.demandTracking.statusAssigned') },
+    { key: 'in_progress' as DemandStatus, label: this.i18n.t('client.demandTracking.statusInProgress') },
+    { key: 'completed' as DemandStatus, label: this.i18n.t('client.demandTracking.statusDone') }
+  ]);
 
   private statusOrder: DemandStatus[] = ['open', 'assigned', 'in_progress', 'completed'];
 
@@ -209,18 +196,6 @@ export class DemandTrackingComponent implements OnInit {
   }));
 
   demand = computed(() => this.demandQuery.data());
-
-  validateMutation = injectMutation(() => ({
-    mutationFn: () => this.demandService.updateDemandStatus(this.demandId(), 'completed'),
-    onSuccess: () => {
-      this.queryClient.invalidateQueries({ queryKey: ['demand', this.demandId()] });
-      this.queryClient.invalidateQueries({ queryKey: ['demands', 'my'] });
-      this.validateModal.set(false);
-      this.toast.show('success', 'Wash completed! Please rate your washer.');
-      this.router.navigate(['/client/review', this.demandId()]);
-    },
-    onError: () => this.toast.show('error', 'Update failed. Try again.')
-  }));
 
   // Dev only mutation
   devStatusMutation = injectMutation(() => ({
@@ -248,13 +223,13 @@ export class DemandTrackingComponent implements OnInit {
     this.devStatusMutation.mutate(status);
   }
 
-  confirmValidation() {
-    this.validateMutation.mutate();
+  goToValidation() {
+    this.router.navigate(['/client/validate', this.demandId()]);
   }
 
   goToMessages() {
     // TODO: route vers /messages/:demandId une fois le module messaging implémenté
-    this.toast.show('info', 'Messaging module coming soon!');
+    this.toast.show('info', this.i18n.t('client.demandTracking.toastMessagingSoon'));
   }
 
   goBack() {

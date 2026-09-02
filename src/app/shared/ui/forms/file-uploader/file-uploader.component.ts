@@ -1,5 +1,6 @@
 import { Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '../../../i18n/translate.pipe';
 
 /**
  * FileUploaderComponent
@@ -17,7 +18,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-file-uploader',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   template: `
     <div class="w-full">
       <label class="block text-sm font-semibold text-gray-700 mb-1">
@@ -46,11 +47,11 @@ import { CommonModule } from '@angular/common';
             </svg>
             <div class="flex flex-col md:flex-row text-sm text-gray-600 justify-center items-center gap-1 md:gap-0">
               <span class="relative cursor-pointer rounded-md font-medium text-accent-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-accent-500 focus-within:ring-offset-2 hover:text-accent-500">
-                <span>Upload a file</span>
+                <span>{{ 'shared.fileUploader.uploadFile' | translate }}</span>
               </span>
-              <p class="md:pl-1 hidden md:block">or drag and drop</p>
+              <p class="md:pl-1 hidden md:block">{{ 'shared.fileUploader.dragDrop' | translate }}</p>
             </div>
-            <p class="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+            <p class="text-xs text-gray-500">{{ 'shared.fileUploader.sizeLimit' | translate }}</p>
           </ng-container>
 
           <!-- State 2: File selected -->
@@ -75,7 +76,7 @@ import { CommonModule } from '@angular/common';
               class="mt-3 rounded-xl px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               (click)="removeFile($event)"
             >
-              Remove
+              {{ 'shared.fileUploader.remove' | translate }}
             </button>
           </ng-container>
         </div>

@@ -13,7 +13,7 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
       <!-- Hero -->
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
         <div class="text-center max-w-4xl mx-auto" appScrollReveal>
-          <h1 class="text-5xl font-extrabold tracking-tight text-text-main md:text-6xl mb-6">
+          <h1 class="font-display text-5xl font-semibold tracking-tight text-text-main md:text-6xl mb-6">
             {{ 'about.hero_title' | translate }}
           </h1>
           <p class="text-xl md:text-2xl text-text-muted leading-relaxed">
@@ -26,7 +26,7 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-32">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div appScrollReveal="{ delay: 200, direction: 'left' }">
-            <h2 class="text-3xl md:text-4xl font-bold text-text-main mb-8">{{ 'about.mission_title' | translate }}</h2>
+            <h2 class="font-display text-3xl md:text-4xl font-semibold text-text-main mb-8">{{ 'about.mission_title' | translate }}</h2>
             <div class="space-y-6 text-lg text-text-muted">
               <p>{{ 'about.mission_desc1' | translate }}</p>
               <p>{{ 'about.mission_desc2' | translate }}</p>
@@ -46,7 +46,7 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
       <div class="bg-surface-2 py-24 mb-32">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center mb-16" appScrollReveal>
-            <h2 class="text-3xl md:text-4xl font-bold text-text-main">{{ 'about.values_title' | translate }}</h2>
+            <h2 class="font-display text-3xl md:text-4xl font-semibold text-text-main">{{ 'about.values_title' | translate }}</h2>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div class="bg-surface p-8 rounded-3xl shadow-soft-sm border border-surface-3 hover:-translate-y-2 transition-transform duration-300" appScrollReveal="{ delay: 100 }">
@@ -87,7 +87,7 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
       <!-- Team -->
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-32">
         <div class="text-center mb-16" appScrollReveal>
-          <h2 class="text-3xl md:text-4xl font-bold text-text-main">{{ 'about.team_title' | translate }}</h2>
+          <h2 class="font-display text-3xl md:text-4xl font-semibold text-text-main">{{ 'about.team_title' | translate }}</h2>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
           <!-- Member 1 -->
@@ -155,7 +155,7 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd" /></svg>
               <span>100% Umweltfreundlich</span>
             </div>
-            <h2 class="text-3xl md:text-4xl font-bold text-text-main mb-6">{{ 'about.eco_title' | translate }}</h2>
+            <h2 class="font-display text-3xl md:text-4xl font-semibold text-text-main mb-6">{{ 'about.eco_title' | translate }}</h2>
             <p class="text-lg text-text-muted mb-8 leading-relaxed">
               {{ 'about.eco_desc' | translate }}
             </p>
@@ -175,7 +175,7 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
 
       <!-- Jobs CTA -->
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center" appScrollReveal>
-        <h2 class="text-3xl font-bold text-text-main mb-4">{{ 'about.jobs_title' | translate }}</h2>
+        <h2 class="font-display text-3xl font-semibold text-text-main mb-4">{{ 'about.jobs_title' | translate }}</h2>
         <p class="text-xl text-text-muted mb-8">{{ 'about.jobs_subtitle' | translate }}</p>
         <button class="bg-text-main hover:bg-black text-white font-bold py-4 px-10 rounded-full shadow-lg transition-transform hover:-translate-y-1">
           {{ 'about.jobs_button' | translate }}

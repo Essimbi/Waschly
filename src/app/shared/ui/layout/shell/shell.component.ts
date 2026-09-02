@@ -1,6 +1,9 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import { I18nService } from '../../../i18n/i18n.service';
+import { TranslatePipe } from '../../../i18n/translate.pipe';
 
 export interface NavItem {
   iconSvg: string;
@@ -19,7 +22,7 @@ export interface NavItem {
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   template: `
     <div class="h-screen w-full flex flex-col md:flex-row overflow-hidden bg-page">
       
@@ -35,13 +38,13 @@ export interface NavItem {
           </div>
           <div>
             <span class="font-bold text-xl text-gray-900 tracking-tight block">Waschly</span>
-            <span class="text-[10px] font-bold text-accent-600 tracking-wider uppercase">Client Portal</span>
+            <span class="text-[10px] font-bold text-accent-600 tracking-wider uppercase">{{ portalLabel() }}</span>
           </div>
         </div>
         
         <!-- Navigation -->
         <nav class="flex-1 px-4 space-y-1 overflow-y-auto mt-2">
-          <p class="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Menü</p>
+          <p class="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">{{ 'shell.menu' | translate }}</p>
           @for (item of items(); track item.route) {
             <a 
               [routerLink]="item.route"
@@ -57,7 +60,7 @@ export interface NavItem {
               
               <div class="flex items-center gap-3">
                 <div 
-                  [innerHTML]="item.iconSvg" 
+                  [innerHTML]="safeIcon(item.iconSvg)" 
                   class="w-5 h-5 transition-transform duration-200"
                   [ngClass]="rla.isActive ? 'fill-current stroke-current text-accent-600 scale-110' : 'fill-none stroke-current text-gray-400 group-hover:text-gray-600 group-hover:scale-110'"
                 ></div>
@@ -72,20 +75,34 @@ export interface NavItem {
           }
         </nav>
         
-        <!-- Footer / User Profile Mock -->
-        <div class="p-4 m-4 rounded-2xl bg-surface-2 border border-gray-100 cursor-pointer hover:bg-white hover:shadow-soft-sm hover:border-gray-200 transition-all duration-300 group">
+        <!-- Footer / User Profile -->
+        <a [routerLink]="profileRoute() || null" class="block p-4 m-4 mb-2 rounded-2xl bg-surface-2 border border-gray-100 hover:bg-white hover:shadow-soft-sm hover:border-gray-200 transition-all duration-300 group">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-accent-100 text-accent-700 flex items-center justify-center font-bold shrink-0 shadow-inner group-hover:bg-accent-200 transition-colors">
-              JW
+              {{ userInitials() }}
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-gray-900 truncate">Julia Wagner</p>
-              <p class="text-xs text-gray-500 truncate">julia&#64;example.com</p>
+              <p class="text-sm font-bold text-gray-900 truncate">{{ userName() }}</p>
+              <p class="text-xs text-gray-500 truncate">{{ userEmail() }}</p>
             </div>
             <svg class="w-5 h-5 text-gray-400 shrink-0 group-hover:text-accent-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
             </svg>
           </div>
+        </a>
+
+        <div class="mx-4 mb-4 flex items-center gap-2">
+          <button type="button" (click)="logout.emit()" class="flex-1 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors duration-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            {{ 'shell.logout' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="toggleLanguage()"
+            class="flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-900 bg-surface-2 hover:bg-surface-3 transition-colors duration-200 shrink-0"
+            [attr.aria-label]="'shell.toggleLanguage' | translate">
+            {{ currentLang() === 'de' ? '🇩🇪' : '🇬🇧' }}
+          </button>
         </div>
       </aside>
       
@@ -111,7 +128,7 @@ export interface NavItem {
                 <div class="relative flex items-center justify-center w-12 h-8 rounded-full transition-colors duration-300"
                      [ngClass]="rla2.isActive ? 'bg-accent-100' : 'bg-transparent'">
                   <div 
-                    [innerHTML]="item.iconSvg" 
+                    [innerHTML]="safeIcon(item.iconSvg)" 
                     class="w-5 h-5 transition-transform duration-300"
                     [ngClass]="rla2.isActive ? 'fill-current stroke-current scale-110 text-accent-700' : 'fill-none stroke-current'"
                   ></div>
@@ -131,5 +148,36 @@ export interface NavItem {
   `
 })
 export class ShellComponent {
+  private sanitizer = inject(DomSanitizer);
+  private i18n = inject(I18nService);
+  currentLang = this.i18n.currentLang;
+
+  toggleLanguage() {
+    this.i18n.toggleLanguage();
+  }
+
+  /** Nav icon SVGs are hardcoded, developer-authored strings — safe to bypass sanitization.
+   *  Without this, Angular's default HTML sanitizer strips <svg> entirely from [innerHTML]. */
+  private safeIconCache = new Map<string, SafeHtml>();
+  safeIcon(svg: string): SafeHtml {
+    let safe = this.safeIconCache.get(svg);
+    if (!safe) {
+      safe = this.sanitizer.bypassSecurityTrustHtml(svg);
+      this.safeIconCache.set(svg, safe);
+    }
+    return safe;
+  }
+
   items = input.required<NavItem[]>();
+  portalLabel = input<string>('');
+  userName = input<string>('');
+  userEmail = input<string>('');
+  profileRoute = input<string>('');
+  logout = output<void>();
+
+  userInitials = computed(() => {
+    const parts = this.userName().trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '';
+    return (parts[0][0] + (parts[1]?.[0] ?? '')).toUpperCase();
+  });
 }

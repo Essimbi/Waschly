@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../shared/ui/actions/button/button.component';
 import { CardComponent } from '../../../../shared/ui/display/card/card.component';
 import { ScrollRevealDirective } from '../../../../shared/ui/animations/scroll-reveal.directive';
@@ -9,21 +10,21 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
 @Component({
   selector: 'app-partner',
   standalone: true,
-  imports: [CommonModule, ButtonComponent, CardComponent, ScrollRevealDirective, Tilt3DDirective, TranslatePipe],
+  imports: [CommonModule, RouterLink, ButtonComponent, CardComponent, ScrollRevealDirective, Tilt3DDirective, TranslatePipe],
   template: `
     <div class="pt-32 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <!-- Hero -->
       <div class="text-center max-w-4xl mx-auto mb-24" appScrollReveal>
-        <h1 class="text-4xl font-extrabold tracking-tight text-text-main sm:text-5xl md:text-6xl">
+        <h1 class="font-display text-4xl font-semibold tracking-tight text-text-main sm:text-5xl md:text-6xl">
           {{ 'partner.hero_title' | translate }}
         </h1>
         <p class="mt-6 text-xl text-text-muted">
           {{ 'partner.hero_subtitle' | translate }}
         </p>
         <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-          <app-button variant="primary" size="lg">{{ 'partner.hero_cta' | translate }}</app-button>
-          <app-button variant="secondary" size="lg">{{ 'partner.hero_cta2' | translate }}</app-button>
+          <app-button variant="primary" size="lg" routerLink="/register/washer">{{ 'partner.hero_cta' | translate }}</app-button>
+          <app-button variant="secondary" size="lg" routerLink="." fragment="steps">{{ 'partner.hero_cta2' | translate }}</app-button>
         </div>
       </div>
 
@@ -47,40 +48,26 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
         </div>
       </div>
 
-      <!-- 3 Steps -->
-      <div class="mb-32">
+      <!-- 4 Steps (same process described on the homepage, for consistency) -->
+      <div class="mb-32" id="steps">
         <div class="text-center mb-16" appScrollReveal>
-          <h2 class="text-3xl font-bold text-text-main">{{ 'partner.steps_title' | translate }}</h2>
+          <h2 class="font-display text-3xl font-semibold text-text-main">{{ 'partner.steps_title' | translate }}</h2>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-          <!-- Decorative line for desktop -->
-          <div class="hidden md:block absolute top-12 left-[15%] right-[15%] h-1 bg-surface-3 rounded-full"></div>
-          
-          <!-- Step 1 -->
-          <div class="relative text-center" appScrollReveal="{ delay: 100 }">
-            <div class="w-24 h-24 mx-auto bg-surface border-4 border-surface shadow-soft-md rounded-full flex items-center justify-center text-3xl font-bold text-accent-600 mb-6 relative z-10">1</div>
-            <h3 class="text-xl font-bold text-text-main mb-3">{{ 'partner.step1_title' | translate }}</h3>
-            <p class="text-text-muted">{{ 'partner.step1_desc' | translate }}</p>
-          </div>
-          <!-- Step 2 -->
-          <div class="relative text-center" appScrollReveal="{ delay: 200 }">
-            <div class="w-24 h-24 mx-auto bg-surface border-4 border-surface shadow-soft-md rounded-full flex items-center justify-center text-3xl font-bold text-accent-600 mb-6 relative z-10">2</div>
-            <h3 class="text-xl font-bold text-text-main mb-3">{{ 'partner.step2_title' | translate }}</h3>
-            <p class="text-text-muted">{{ 'partner.step2_desc' | translate }}</p>
-          </div>
-          <!-- Step 3 -->
-          <div class="relative text-center" appScrollReveal="{ delay: 300 }">
-            <div class="w-24 h-24 mx-auto bg-surface border-4 border-surface shadow-soft-md rounded-full flex items-center justify-center text-3xl font-bold text-accent-600 mb-6 relative z-10">3</div>
-            <h3 class="text-xl font-bold text-text-main mb-3">{{ 'partner.step3_title' | translate }}</h3>
-            <p class="text-text-muted">{{ 'partner.step3_desc' | translate }}</p>
-          </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+          @for (step of steps; track step.titleKey; let i = $index) {
+            <div class="relative text-center" [appScrollReveal]="{ delay: i * 100 }">
+              <div class="w-24 h-24 mx-auto bg-surface border-4 border-surface shadow-soft-md rounded-full flex items-center justify-center text-3xl font-bold text-accent-600 mb-6 relative z-10">{{ i + 1 }}</div>
+              <h3 class="text-xl font-bold text-text-main mb-3">{{ step.titleKey | translate }}</h3>
+              <p class="text-text-muted">{{ step.descKey | translate }}</p>
+            </div>
+          }
         </div>
       </div>
 
       <!-- 6 Benefits -->
       <div class="mb-32">
         <div class="text-center mb-16" appScrollReveal>
-          <h2 class="text-3xl font-bold text-text-main">{{ 'partner.benefits_title' | translate }}</h2>
+          <h2 class="font-display text-3xl font-semibold text-text-main">{{ 'partner.benefits_title' | translate }}</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <app-card class="p-8 h-full flex flex-col" appScrollReveal="{ delay: 100 }" appTilt3D>
@@ -136,7 +123,7 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
       <!-- Testimonials -->
       <div class="mb-32">
         <div class="text-center mb-16" appScrollReveal>
-          <h2 class="text-3xl font-bold text-text-main">{{ 'partner.testimonials_title' | translate }}</h2>
+          <h2 class="font-display text-3xl font-semibold text-text-main">{{ 'partner.testimonials_title' | translate }}</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <app-card class="p-10 bg-surface border-surface-2" appScrollReveal="{ delay: 100 }">
@@ -172,9 +159,9 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
       <!-- Bottom CTA -->
       <div class="bg-accent-600 rounded-3xl p-12 text-center text-white shadow-soft-xl relative overflow-hidden" appScrollReveal>
         <div class="relative z-10">
-          <h2 class="text-3xl font-extrabold sm:text-4xl mb-4">{{ 'partner.cta_title' | translate }}</h2>
+          <h2 class="font-display text-3xl font-semibold sm:text-4xl mb-4">{{ 'partner.cta_title' | translate }}</h2>
           <p class="text-xl text-accent-100 max-w-2xl mx-auto mb-10">{{ 'partner.cta_subtitle' | translate }}</p>
-          <app-button variant="secondary" size="lg" class="text-accent-700 font-semibold">{{ 'partner.cta_button' | translate }}</app-button>
+          <app-button variant="secondary" size="lg" routerLink="/register/washer" class="text-accent-700 font-semibold">{{ 'partner.cta_button' | translate }}</app-button>
         </div>
         <!-- Decorative pattern -->
         <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 50% 50%, white 2px, transparent 2px); background-size: 32px 32px;"></div>
@@ -183,4 +170,11 @@ import { TranslatePipe } from '../../../../shared/i18n/translate.pipe';
     </div>
   `
 })
-export class PartnerComponent {}
+export class PartnerComponent {
+  steps = [
+    { titleKey: 'howItWorks.washer_step1_title', descKey: 'howItWorks.washer_step1_desc' },
+    { titleKey: 'howItWorks.washer_step2_title', descKey: 'howItWorks.washer_step2_desc' },
+    { titleKey: 'howItWorks.washer_step3_title', descKey: 'howItWorks.washer_step3_desc' },
+    { titleKey: 'howItWorks.washer_step4_title', descKey: 'howItWorks.washer_step4_desc' }
+  ];
+}

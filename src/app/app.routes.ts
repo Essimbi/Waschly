@@ -7,6 +7,10 @@ export const routes: Routes = [
     loadChildren: () => import('./features/public/public.routes').then(m => m.PUBLIC_ROUTES)
   },
   {
+    path: '',
+    loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
+  },
+  {
     path: 'dev/design-system',
     loadComponent: () => import('./dev/design-system/design-system.component').then(m => m.DesignSystemComponent)
   },
@@ -17,12 +21,12 @@ export const routes: Routes = [
   },
   {
     path: 'washer',
-    loadComponent: () => import('./features/washer/washer.component').then(m => m.default),
+    loadChildren: () => import('./features/washer/washer.routes').then(m => m.WASHER_ROUTES),
     canActivate: [authGuard, roleGuard(['washer'])]
   },
   {
     path: 'admin',
-    loadComponent: () => import('./features/admin/admin.component').then(m => m.default),
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
     canActivate: [authGuard, roleGuard(['admin'])]
   },
   {

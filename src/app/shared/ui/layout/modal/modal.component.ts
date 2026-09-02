@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '../../../i18n/translate.pipe';
 
 /**
  * ModalComponent
@@ -18,7 +19,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   template: `
     <!-- The native dialog element manages focus trapping, top layer positioning, and backdrop natively -->
     <dialog 
@@ -45,7 +46,7 @@ import { CommonModule } from '@angular/common';
             type="button" 
             class="text-gray-400 hover:text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-full p-1"
             (click)="close()"
-            aria-label="Close dialog"
+            [attr.aria-label]="'shared.modal.closeDialog' | translate"
           >
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

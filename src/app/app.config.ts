@@ -3,10 +3,14 @@ import { provideRouter, withComponentInputBinding, withViewTransitions } from '@
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideAngularQuery, QueryClient } from '@tanstack/angular-query-experimental';
+import { registerLocaleData } from '@angular/common';
+import localeDe from '@angular/common/locales/de';
 
 import { routes } from './app.routes';
-import { DEMAND_REPOSITORY } from './core/data/demand.repository.token';
-import { MockDemandRepository } from './core/data/mock-demand.repository';
+
+// Registers 'de-DE' so the `date` pipe can format month/day names in German —
+// English ('en-US') is Angular's built-in default and needs no registration.
+registerLocaleData(localeDe, 'de-DE');
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,9 +28,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     provideAnimations(),
     provideAngularQuery(queryClient),
-    
-    // Abstract Data Layer
-    { provide: DEMAND_REPOSITORY, useClass: MockDemandRepository }
   ]
 };
 

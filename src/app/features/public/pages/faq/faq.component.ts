@@ -15,7 +15,7 @@ interface FaqGroup {
   template: `
     <div class="pt-32 pb-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-16" appScrollReveal>
-        <h1 class="text-4xl font-extrabold tracking-tight text-text-main sm:text-5xl">
+        <h1 class="font-display text-4xl font-semibold tracking-tight text-text-main sm:text-5xl">
           {{ 'faq.title' | translate }}
         </h1>
         <p class="mt-4 text-xl text-text-muted">

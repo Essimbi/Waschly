@@ -107,4 +107,52 @@
     background-image: radial-gradient(currentColor 1px, transparent 1px);
     background-size: 16px 16px;
   }
+
+  /* ─── Glassmorphism surface ──────────────────────────────────
+     Frosted glass card/nav treatment. Pair with a border and a
+     soft shadow token (e.g. shadow-soft-lg) on the element. */
+  .glass {
+    background-color: rgb(255 255 255 / 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgb(255 255 255 / 0.4);
+  }
+  .dark .glass {
+    background-color: rgb(21 30 50 / 0.55);
+    border-color: rgb(255 255 255 / 0.08);
+  }
+
+  /* ─── Aurora blob background ─────────────────────────────────
+     Soft blurred color blobs for hero/section backgrounds.
+     Usage: <div class="aurora-bg"><span></span><span></span></div>
+     positioned absolute/inset-0 behind content, low opacity. */
+  .aurora-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .aurora-bg span {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.35;
+  }
+  .aurora-bg span:nth-child(1) {
+    top: -10%;
+    left: -5%;
+    width: 40%;
+    aspect-ratio: 1;
+    background: var(--color-aurora-1, #6FA5DC);
+  }
+  .aurora-bg span:nth-child(2) {
+    top: 10%;
+    right: -10%;
+    width: 35%;
+    aspect-ratio: 1;
+    background: var(--color-aurora-2, #63D0BE);
+  }
+  .dark .aurora-bg span {
+    opacity: 0.18;
+  }
 }

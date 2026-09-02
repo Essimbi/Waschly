@@ -7,10 +7,11 @@
  *  All modules (client, washer, admin) must derive from these values.
  * ══════════════════════════════════════════════════════════════
  *
- *  PALETTE: Single-family desaturated corporate blue (hue 214°)
+ *  PALETTE: Corporate blue (hue 214°) + aqua accent (hue ~172°)
  *  —————————————————————————————————————————————————————————————
- *  Replaces the previous sky/slate split. One brand color family,
- *  with enough lightness range for backgrounds, text, and CTAs.
+ *  Blue remains the dominant trust color. Aqua is a secondary accent
+ *  (verified badges, ratings, success states, trust icons) evoking
+ *  clean water — used sparingly, never as a full section background.
  *
  *  WCAG AA contrast ratios (on #FFFFFF white background):
  *    accent-500 (#2F67B1)  →  5.12:1  ✓ AA (body text, links)
@@ -18,6 +19,10 @@
  *    accent-700 (#174280)  →  9.42:1  ✓ AAA
  *    White on accent-500   →  5.12:1  ✓ AA
  *    White on accent-600   →  6.83:1  ✓ AA/AAA
+ *
+ *    aqua-500 (#1C9686)    →  3.65:1  ⚠ large text/icons only
+ *    aqua-600 (#167A6D)    →  5.20:1  ✓ AA (white text on aqua-600+)
+ *    aqua-700 (#135F56)    →  7.50:1  ✓ AAA
  *
  *  SHADOWS: Multi-layer, on-brand color (accent-800 = #0F2D58)
  *  —————————————————————————————————————————————————————————————
@@ -78,6 +83,22 @@ module.exports = {
           700: '#174280',
           800: '#0F2D58',
           900: '#091D3A',
+        },
+
+        // Secondary accent — desaturated aqua (hue ~172°), "clean water" cue.
+        // Use for: verified badges, ratings, success states, trust icons.
+        // Never as a full section background — blue stays dominant.
+        aqua: {
+          50:  '#EAFBF7',
+          100: '#CFF4EC',
+          200: '#9FE6D9',
+          300: '#63D0BE',
+          400: '#34B39F',
+          500: '#1C9686',  // icons/large text only (3.65:1 vs white)
+          600: '#167A6D',  // white text AA (5.20:1)
+          700: '#135F56',  // white text AAA (7.50:1)
+          800: '#114A44',
+          900: '#0B302C',
         },
       },
 
@@ -143,6 +164,19 @@ module.exports = {
       },
       transitionTimingFunction: {
         'soft': 'cubic-bezier(0.16, 1, 0.3, 1)',
+      },
+
+      // ─── Typography ────────────────────────────────────────────────────
+      // display: headings (Fraunces — warm serif, distinctive)
+      // sans: body copy (Public Sans — clean grotesk, strong DE support)
+      fontFamily: {
+        display: ['"Fraunces"', 'Georgia', 'serif'],
+        sans: ['"Public Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+
+      // ─── Glassmorphism ─────────────────────────────────────────────────
+      backdropBlur: {
+        glass: '16px',
       },
     },
   },

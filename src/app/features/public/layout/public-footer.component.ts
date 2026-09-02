@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../../shared/i18n/translate.pipe';
+import { I18nService } from '../../../shared/i18n/i18n.service';
 
 @Component({
   selector: 'app-public-footer',
@@ -20,9 +21,10 @@ import { TranslatePipe } from '../../../shared/i18n/translate.pipe';
           <div>
             <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4 transition-colors duration-300">{{ 'footer.product' | translate }}</h3>
             <ul class="space-y-3 text-sm">
-              <li><a routerLink="/" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_pricing' | translate }}</a></li>
-              <li><a routerLink="/pricing" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_partner' | translate }}</a></li>
-              <li><a routerLink="/faq" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_about' | translate }}</a></li>
+              <li><a routerLink="/offers" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_offers' | translate }}</a></li>
+              <li><a routerLink="/pricing" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_pricing' | translate }}</a></li>
+              <li><a routerLink="/partner" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_partner' | translate }}</a></li>
+              <li><a routerLink="/about" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_about' | translate }}</a></li>
             </ul>
           </div>
           <div>
@@ -36,14 +38,14 @@ import { TranslatePipe } from '../../../shared/i18n/translate.pipe';
           <div>
             <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4 transition-colors duration-300">{{ 'footer.legal' | translate }}</h3>
             <ul class="space-y-3 text-sm">
-              <li><a href="#" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_privacy' | translate }}</a></li>
-              <li><a href="#" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_terms' | translate }}</a></li>
-              <li><a href="#" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_imprint' | translate }}</a></li>
+              <li><a routerLink="/datenschutz" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_privacy' | translate }}</a></li>
+              <li><a routerLink="/agb" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_terms' | translate }}</a></li>
+              <li><a routerLink="/impressum" class="hover:text-gray-900 dark:hover:text-white transition-colors duration-200">{{ 'footer.link_imprint' | translate }}</a></li>
             </ul>
           </div>
         </div>
         <div class="mt-12 pt-8 border-t border-gray-200/60 dark:border-gray-800/60 flex flex-col md:flex-row justify-between items-center transition-colors duration-300">
-          <p class="text-sm">© {{ currentYear }} Waschly GmbH. All rights reserved.</p>
+          <p class="text-sm">{{ copyrightText() }}</p>
           <div class="flex space-x-6 mt-4 md:mt-0">
             <a href="#" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200">
               <span class="sr-only">Instagram</span>
@@ -65,4 +67,10 @@ import { TranslatePipe } from '../../../shared/i18n/translate.pipe';
 })
 export class PublicFooterComponent {
   currentYear = new Date().getFullYear();
+
+  constructor(private i18n: I18nService) {}
+
+  copyrightText = computed(() =>
+    this.i18n.dict().footer.copyright.replace('{year}', String(this.currentYear))
+  );
 }

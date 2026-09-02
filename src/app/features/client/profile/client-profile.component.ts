@@ -3,30 +3,33 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { injectQuery, injectMutation, QueryClient } from '@tanstack/angular-query-experimental';
 
-import { DemandService } from '../services/demand.service';
+import { DemandService } from '../../../core/data/demand.service';
 import { ButtonComponent } from '../../../shared/ui/actions/button/button.component';
 import { AvatarComponent } from '../../../shared/ui/display/avatar/avatar.component';
 import { SkeletonComponent } from '../../../shared/ui/feedback/skeleton/skeleton.component';
 import { ToastService } from '../../../shared/ui/feedback/toast/toast.service';
 import { ModalComponent } from '../../../shared/ui/layout/modal/modal.component';
-import { UserProfile } from '../models/demand.dto';
+import { UserProfile } from '../../../core/data/demand.dto';
+import { TranslatePipe } from '../../../shared/i18n/translate.pipe';
+import { I18nService } from '../../../shared/i18n/i18n.service';
 
 @Component({
   selector: 'app-client-profile',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ReactiveFormsModule,
     ButtonComponent,
     AvatarComponent,
     SkeletonComponent,
-    ModalComponent
+    ModalComponent,
+    TranslatePipe
   ],
   template: `
     <div class="max-w-2xl mx-auto space-y-8 p-4 pb-24">
       <header>
-        <h1 class="text-2xl font-bold text-gray-900">Mein Profil</h1>
-        <p class="text-gray-500 text-sm mt-1">Verwalten Sie Ihre persönlichen Daten und Einstellungen.</p>
+        <h1 class="text-2xl font-bold text-gray-900">{{ 'client.profile.title' | translate }}</h1>
+        <p class="text-gray-500 text-sm mt-1">{{ 'client.profile.subtitle' | translate }}</p>
       </header>
 
       @if (profileQuery.isPending()) {
@@ -56,39 +59,39 @@ import { UserProfile } from '../models/demand.dto';
             </div>
             <div>
               <h2 class="text-xl font-bold text-gray-900">{{ profile()!.firstName }} {{ profile()!.lastName }}</h2>
-              <p class="text-sm text-gray-500">Dabei seit {{ profile()!.memberSince | date:'MMMM yyyy' }}</p>
+              <p class="text-sm text-gray-500">{{ 'client.profile.memberSince' | translate }} {{ profile()!.memberSince | date:'MMMM yyyy':undefined:dateLocale() }}</p>
             </div>
           </div>
 
           <form [formGroup]="form" (ngSubmit)="save()" class="space-y-5">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Vorname</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ 'client.profile.firstNameLabel' | translate }}</label>
                 <input formControlName="firstName" type="text" class="w-full px-4 py-2.5 bg-gray-50 border-gray-200 border rounded-xl focus:bg-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all outline-none">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nachname</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ 'client.profile.lastNameLabel' | translate }}</label>
                 <input formControlName="lastName" type="text" class="w-full px-4 py-2.5 bg-gray-50 border-gray-200 border rounded-xl focus:bg-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all outline-none">
               </div>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">E-Mail</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">{{ 'client.profile.emailLabel' | translate }}</label>
               <input formControlName="email" type="email" class="w-full px-4 py-2.5 bg-gray-50 border-gray-200 border rounded-xl focus:bg-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all outline-none">
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">{{ 'client.profile.phoneLabel' | translate }}</label>
               <input formControlName="phone" type="tel" class="w-full px-4 py-2.5 bg-gray-50 border-gray-200 border rounded-xl focus:bg-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all outline-none">
             </div>
 
             <div class="pt-4 flex justify-end">
-              <app-button 
-                type="submit" 
-                variant="primary" 
+              <app-button
+                type="submit"
+                variant="primary"
                 [disabled]="form.invalid || !form.dirty"
                 [isLoading]="updateMutation.isPending()">
-                Änderungen speichern
+                {{ 'client.profile.saveButton' | translate }}
               </app-button>
             </div>
           </form>
@@ -96,12 +99,12 @@ import { UserProfile } from '../models/demand.dto';
 
         <!-- Danger Zone -->
         <section class="bg-red-50 rounded-2xl border border-red-100 p-6 mt-8">
-          <h3 class="text-lg font-semibold text-red-900 mb-2">Gefahrenzone</h3>
+          <h3 class="text-lg font-semibold text-red-900 mb-2">{{ 'client.profile.dangerZoneTitle' | translate }}</h3>
           <p class="text-sm text-red-700 mb-4">
-            Wenn Sie Ihr Konto löschen, werden alle Ihre Daten permanent und unwiderruflich entfernt.
+            {{ 'client.profile.dangerZoneText' | translate }}
           </p>
           <app-button variant="danger" (click)="deleteModalOpen = true">
-            Konto löschen
+            {{ 'client.profile.deleteAccountButton' | translate }}
           </app-button>
         </section>
 
@@ -109,13 +112,13 @@ import { UserProfile } from '../models/demand.dto';
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <app-modal [isOpen]="deleteModalOpen" (closed)="deleteModalOpen = false" title="Konto wirklich löschen?">
+    <app-modal [isOpen]="deleteModalOpen" (closed)="deleteModalOpen = false" [title]="'client.profile.deleteModalTitle' | translate">
       <p class="text-gray-600">
-        Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Wasch-Historien und Einstellungen gehen verloren.
+        {{ 'client.profile.deleteModalText' | translate }}
       </p>
       <div footer>
-        <app-button variant="ghost" (click)="deleteModalOpen = false">Abbrechen</app-button>
-        <app-button variant="danger" (click)="deleteAccount()">Ja, löschen</app-button>
+        <app-button variant="ghost" (click)="deleteModalOpen = false">{{ 'client.profile.cancelButton' | translate }}</app-button>
+        <app-button variant="danger" (click)="deleteAccount()">{{ 'client.profile.confirmDeleteButton' | translate }}</app-button>
       </div>
     </app-modal>
   `
@@ -125,6 +128,9 @@ export class ClientProfileComponent {
   private fb = inject(FormBuilder);
   private toast = inject(ToastService);
   private queryClient = inject(QueryClient);
+  private i18n = inject(I18nService);
+
+  dateLocale = computed(() => this.i18n.currentLang() === 'de' ? 'de-DE' : 'en-US');
 
   deleteModalOpen = false;
 
@@ -156,11 +162,11 @@ export class ClientProfileComponent {
   updateMutation = injectMutation(() => ({
     mutationFn: (updates: Partial<UserProfile>) => this.demandService.updateClientProfile(updates),
     onSuccess: () => {
-      this.toast.show('success', 'Profil erfolgreich aktualisiert.');
+      this.toast.show('success', this.i18n.t('client.profile.toastUpdateSuccess'));
       this.queryClient.invalidateQueries({ queryKey: ['profile'] });
       this.form.markAsPristine();
     },
-    onError: () => this.toast.show('error', 'Fehler beim Aktualisieren.')
+    onError: () => this.toast.show('error', this.i18n.t('client.profile.toastUpdateError'))
   }));
 
   save() {
@@ -171,6 +177,6 @@ export class ClientProfileComponent {
 
   deleteAccount() {
     this.deleteModalOpen = false;
-    this.toast.show('info', 'Datenschutz-Anfrage zur Kontolöschung gesendet.');
+    this.toast.show('info', this.i18n.t('client.profile.toastDeleteRequestSent'));
   }
 }
