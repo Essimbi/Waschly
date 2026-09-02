@@ -6,7 +6,6 @@ import { injectMutation } from '@tanstack/angular-query-experimental';
 
 import { ButtonComponent } from '../../../shared/ui/actions/button/button.component';
 import { IconButtonComponent } from '../../../shared/ui/actions/icon-button/icon-button.component';
-import { SelectComponent } from '../../../shared/ui/forms/select/select.component';
 import { TextareaComponent } from '../../../shared/ui/forms/textarea/textarea.component';
 import { FileUploaderComponent } from '../../../shared/ui/forms/file-uploader/file-uploader.component';
 import { ToastService } from '../../../shared/ui/feedback/toast/toast.service';
@@ -22,7 +21,6 @@ import { CreateDemandDto } from '../models/demand.dto';
     ReactiveFormsModule,
     ButtonComponent,
     IconButtonComponent,
-    SelectComponent,
     TextareaComponent,
     FileUploaderComponent
   ],

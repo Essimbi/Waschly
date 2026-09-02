@@ -10,19 +10,32 @@
 
 /* ─── CSS Custom Properties ─────────────────────────────────── */
 :root {
-  /* Page background — accent-50 at ~30% opacity blended over white.
-     Gives a barely-perceptible warm blue tint instead of cold gray-50. */
-  --color-page-bg:    #F4F7FD;
+  /* Page background */
+  --color-bg: #F4F7FD;
   /* Surface (cards, inputs, modals) */
-  --color-surface:    #FFFFFF;
-  /* Subtle surface variant (slightly off-white for nested sections) */
-  --color-surface-2:  #F8FAFF;
+  --color-surface: #FFFFFF;
+  /* Subtle surface variant */
+  --color-surface-2: #F8FAFF;
+  --color-surface-3: #EBF1FA;
+  
+  /* Text */
+  --color-text-main: #111827; /* gray-900 */
+  --color-text-muted: #6B7280; /* gray-500 */
 
   /* Standard easing for all interactive transitions */
   --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
-
   /* Stagger delay increments for list animations */
   --stagger-base: 40ms;
+}
+
+.dark {
+  --color-bg: #0B1121; /* Very dark blue/slate */
+  --color-surface: #151E32;
+  --color-surface-2: #1E293B; /* slate-800 */
+  --color-surface-3: #334155; /* slate-700 */
+  
+  --color-text-main: #F9FAFB; /* gray-50 */
+  --color-text-muted: #9CA3AF; /* gray-400 */
 }
 
 /* ─── Base Resets ────────────────────────────────────────────── */
@@ -34,7 +47,8 @@
   }
 
   body {
-    background-color: var(--color-page-bg);
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
   }
 
   /* Smooth scroll everywhere */
@@ -61,9 +75,9 @@
     clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
   }
 
-  /* Page background utility — use instead of bg-gray-50 */
+  /* Page background utility */
   .bg-page {
-    background-color: var(--color-page-bg);
+    background-color: var(--color-bg);
   }
 
   /* Surface utilities */

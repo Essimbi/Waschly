@@ -4,8 +4,7 @@ import { authGuard, roleGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./features/landing/landing.component').then(m => m.LandingComponent),
-    title: 'Waschly – Ihr Auto. Blitzsauber. In Minuten.'
+    loadChildren: () => import('./features/public/public.routes').then(m => m.PUBLIC_ROUTES)
   },
   {
     path: 'dev/design-system',

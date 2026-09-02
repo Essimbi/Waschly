@@ -40,6 +40,7 @@
  */
 
 module.exports = {
+  darkMode: 'class',
   content: [
     "./src/**/*.{html,ts}",
   ],
@@ -47,6 +48,13 @@ module.exports = {
     extend: {
       // ─── Color Palette ─────────────────────────────────────────────────
       colors: {
+        background: 'var(--color-bg)',
+        surface: 'var(--color-surface)',
+        'surface-2': 'var(--color-surface-2)',
+        'surface-3': 'var(--color-surface-3)',
+        'text-main': 'var(--color-text-main)',
+        'text-muted': 'var(--color-text-muted)',
+        
         accent: {
           50:  '#EEF4FF',  // hsl(214, 100%, 97%) — page tint, lightest bg
           100: '#D5E5FB',  // hsl(214, 88%, 91%)  — hover bg, badge bg
@@ -59,8 +67,6 @@ module.exports = {
           800: '#0F2D58',  // hsl(214, 70%, 21%)  — shadow color base
           900: '#091D3A',  // hsl(214, 70%, 14%)  — darkest brand text
         },
-        // primary is aliased to accent for backward-compatibility
-        // (inputs use primary-500 focus rings — will be migrated to accent)
         primary: {
           50:  '#EEF4FF',
           100: '#D5E5FB',
